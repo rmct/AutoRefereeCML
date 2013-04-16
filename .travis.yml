@@ -1,0 +1,10 @@
+language: java
+
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - openjdk6
+
+before_install:
+  - git clone https://github.com/rmct/AutoReferee.git
+  - pushd AutoReferee && mvn clean package install && popd

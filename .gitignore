@@ -1,0 +1,30 @@
+# Eclipse
+/.classpath
+/.project
+/.settings
+
+# IntelliJ
+/.idea
+*.iml
+
+# we use maven!
+/build.xml
+
+# maven
+/target
+
+# vim
+.*.sw[a-p]
+*~
+
+# AWS map repository
+/s3
+
+# various other potential build files
+/build
+/bin
+/dist
+/manifest.mf
+
+# Mac filesystem dust
+/.DS_Store

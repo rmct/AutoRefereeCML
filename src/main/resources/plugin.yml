@@ -1,0 +1,7 @@
+name: AutoRefereeCML
+main: org.mctourney.autoreferee.AutoRefereeCML
+version: 0.1
+author: authorblues
+
+depend:
+  - AutoReferee
