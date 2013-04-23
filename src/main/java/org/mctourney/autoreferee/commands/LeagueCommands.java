@@ -13,20 +13,20 @@ import org.mctourney.autoreferee.util.commands.CommandHandler;
 
 import java.util.Date;
 
-public class PluginCommands implements CommandHandler
+public class LeagueCommands implements CommandHandler
 {
 	AutoReferee plugin;
 
-	public PluginCommands(Plugin plugin)
+	public LeagueCommands(Plugin plugin)
 	{
 		this.plugin = (AutoReferee) plugin;
 	}
 
-	@AutoRefCommand(name={"autoref", "command"}, argmax=0,
+	@AutoRefCommand(name={"autoref", "rankings"}, argmax=0,
 		description="An example command to add.")
 	@AutoRefPermission(console=true, nodes={"autoreferee.admin"})
 
-	public boolean command(CommandSender sender, AutoRefMatch match, String[] args, CommandLine options)
+	public boolean getRankings(CommandSender sender, AutoRefMatch match, String[] args, CommandLine options)
 	{
 		return true;
 	}

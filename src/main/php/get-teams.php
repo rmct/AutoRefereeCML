@@ -1,16 +1,14 @@
 <?
 
+require_once('common.php');
+$dbh = get_db_handler();
+
+$result = array();
+
 $teamdata = json_decode($_POST['teamdata']);
 for ($teamdata as $teamname => $team)
-{
-	$players = $team['players'];
-	$elements = array_fill(0, count($players), '?');
+    $result[$teamname] = get_team($team);
 
-	// query returns the name of the team and the number
-    $get_team_query = 'SELECT COUNT(*), teamname FROM TeamUser INNER JOIN User INNER JOIN Team '.
-    	'WHERE ign IN (' . $elements . ') GROUP BY Team.teamid';
-
-
-}
+die(json_encode($result));
 
 ?>
