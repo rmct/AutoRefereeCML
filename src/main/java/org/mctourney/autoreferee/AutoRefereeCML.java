@@ -1,23 +1,33 @@
 package org.mctourney.autoreferee;
 
-import java.util.Map;
-
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.google.common.collect.Maps;
-
 import org.mctourney.autoreferee.commands.LeagueCommands;
+import org.mctourney.autoreferee.listeners.MatchListener;
 
 public class AutoRefereeCML extends JavaPlugin
 {
-	private Map<AutoRefTeam, Integer> leagueIDs = Maps.newHashMap();
+	public static String API_SERVER = null;
+
+	private static AutoRefereeCML instance = null;
+
+	public static AutoRefereeCML getInstance()
+	{ return instance; }
 
 	@Override
 	public void onEnable()
 	{
+		// set singleton instance
+		AutoRefereeCML.instance = this;
+
 		AutoReferee ar = AutoReferee.getInstance();
 
 		ar.getCommandManager().registerCommands(new LeagueCommands(ar), ar);
+
+		Bukkit.getPluginManager().registerEvents(new MatchListener(ar), ar);
+
+		AutoRefereeCML.API_SERVER = this.getConfig().getString("auth-server");
 
 		getLogger().info(this.getName() + " enabled.");
 	}
@@ -27,10 +37,4 @@ public class AutoRefereeCML extends JavaPlugin
 	{
 		getLogger().info(this.getName() + " disabled.");
 	}
-
-	public Integer getLeagueID(AutoRefTeam team)
-	{ return leagueIDs.get(team); }
-
-	public void setLeagueID(AutoRefTeam team, int id)
-	{ leagueIDs.put(team, id); }
 }
