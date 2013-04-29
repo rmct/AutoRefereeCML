@@ -28,3 +28,7 @@
 
 # Mac filesystem dust
 /.DS_Store
+
+# private files
+/src/main/php/database.php
+/src/main/php/ratings.php

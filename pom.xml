@@ -10,9 +10,9 @@
   <groupId>org.mctourney.autoreferee</groupId>
   <artifactId>AutoRefereeCML</artifactId>
   <version>0.1</version>
-  <name>AutoReferee Addon Plugin Template</name>
+  <name>AutoReferee Competitive Minecraft League</name>
   <url>http://www.reddit.com/r/mctourney</url>
-  <description>AutoReferee addon: [add description here].</description>
+  <description>AutoReferee addon: Ranked match functionality, league play.</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

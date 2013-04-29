@@ -1,4 +1,4 @@
-<?
+<?php
 
 require_once('common.php');
 $dbh = get_db_handler();
