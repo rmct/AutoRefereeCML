@@ -1,15 +1,15 @@
 package org.mctourney.autoreferee.listeners;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.Set;
+
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-
 import org.bukkit.scheduler.BukkitRunnable;
+
 import org.mctourney.autoreferee.AutoRefMatch;
 import org.mctourney.autoreferee.AutoRefPlayer;
 import org.mctourney.autoreferee.AutoRefTeam;
@@ -21,9 +21,10 @@ import org.mctourney.autoreferee.event.match.MatchStartEvent;
 import org.mctourney.autoreferee.event.match.MatchUnloadEvent;
 import org.mctourney.autoreferee.util.QueryServer;
 
-import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class MatchListener implements Listener
 {
@@ -47,7 +48,6 @@ public class MatchListener implements Listener
 		public IdentifyTeamsTask(AutoRefMatch match)
 		{ this.match = match; }
 
-		@SuppressWarnings("unused")
 		class TeamData
 		{
 			public int id, score;
@@ -122,7 +122,6 @@ public class MatchListener implements Listener
 		public UpdateRatingsTask(AutoRefMatch match, AutoRefTeam winner)
 		{ this.match = match; this.winner = winner; }
 
-		@SuppressWarnings("unused")
 		class TeamData
 		{
 			public double rating, prevrating;
@@ -135,7 +134,6 @@ public class MatchListener implements Listener
 			{ this.id = id; this.score = score; }
 		}
 
-		@SuppressWarnings("unused")
 		class RankingResponse
 		{
 			public boolean success;
