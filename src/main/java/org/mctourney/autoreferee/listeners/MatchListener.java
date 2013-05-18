@@ -63,7 +63,7 @@ public class MatchListener implements Listener
 			for (AutoRefTeam team : this.match.getTeams())
 			{
 				Set<AutoRefPlayer> apls = team.getPlayers();
-				if (apls.size() < team.getMinSize()) continue;
+			//	if (apls.size() < team.getMinSize()) continue;
 
 				Set<String> players = Sets.newHashSet();
 				for (AutoRefPlayer apl : apls)
@@ -86,7 +86,7 @@ public class MatchListener implements Listener
 			Set<Integer> matchteams = Sets.newHashSet();
 			for (Map.Entry<String, TeamData> entry : teamresult.entrySet())
 			{
-				AutoRefTeam team = match.teamNameLookup(entry.getKey());
+				AutoRefTeam team = match.getTeam(entry.getKey());
 				TeamData data = entry.getValue();
 
 				if (team == null || data == null || matchteams.contains(data.id))
@@ -97,10 +97,16 @@ public class MatchListener implements Listener
 				matchteams.add(data.id);
 			}
 
-			if ((Boolean) match.getMetadata("isranked"))
-				match.broadcastSync(ChatColor.DARK_RED + "[!!] This match will be ranked.",
-					ChatColor.DARK_RED + "[!!] Leaving this match without completion",
-					ChatColor.DARK_RED + "[!!] will be reflected in your rating.");
+			if (matchteams.size() < 2)
+				match.addMetadata("isranked", false);
+
+			if (match.hasMetadata("isranked") && (Boolean) match.getMetadata("isranked"))
+			{
+				match.broadcastSync(ChatColor.DARK_RED + "[!!] This match will be ranked. Leaving this match",
+					ChatColor.DARK_RED + "[!!] without completion will be reflected in your rating.");
+				AutoRefereeCML.getInstance().getLogger().info(
+					String.format("-- Ranked match on '%s'", match.getMapName()));
+			}
 		}
 	}
 
@@ -109,9 +115,6 @@ public class MatchListener implements Listener
 	{
 		AutoRefMatch match = event.getMatch();
 		new IdentifyTeamsTask(match).runTaskAsynchronously(plugin);
-
-		AutoRefereeCML.getInstance().getLogger().info(
-			String.format("-- Ranked match on '%s'", match.getMapName()));
 	}
 
 	private class UpdateRatingsTask extends BukkitRunnable
@@ -125,7 +128,7 @@ public class MatchListener implements Listener
 		class TeamData
 		{
 			public double rating, prevrating;
-			public double q, e, score;
+			public double k, e, score, q;
 
 			public int id;
 			TeamData() {  }
@@ -165,11 +168,12 @@ public class MatchListener implements Listener
 
 			String response = QueryServer.syncPostQuery(AutoRefereeCML.API_SERVER + "/ratings.php",
 				QueryServer.prepareParams(request));
+			AutoReferee.log(response);
 
 			RankingResponse ranking = gson.fromJson(response, RankingResponse.class);
-			for (Map.Entry<String, TeamData> entry : ranking.data.entrySet())
+			if (ranking != null) for (Map.Entry<String, TeamData> entry : ranking.data.entrySet())
 			{
-				AutoRefTeam team = match.teamNameLookup(entry.getKey());
+				AutoRefTeam team = match.getTeam(entry.getKey());
 				TeamData data = entry.getValue();
 
 				if (team == null || data == null) continue;
@@ -188,6 +192,7 @@ public class MatchListener implements Listener
 	public void matchComplete(MatchCompleteEvent event)
 	{
 		AutoRefMatch match = event.getMatch();
+
 		if (match.hasMetadata("isranked") && (Boolean) match.getMetadata("isranked"))
 			new UpdateRatingsTask(match, event.getWinner()).runTaskAsynchronously(plugin);
 	}

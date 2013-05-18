@@ -5,3 +5,11 @@ author: authorblues
 
 depend:
   - AutoReferee
+
+commands:
+  forfeit:
+    description: Vote to forfeit the current match
+    usage: /<command> -yn
+  softforfeit:
+    description: Request a soft-forfeit
+    usage: /<command>

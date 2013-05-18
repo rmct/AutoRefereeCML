@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import org.mctourney.autoreferee.commands.LeagueCommands;
+import org.mctourney.autoreferee.commands.LeagueCoreCommands;
+import org.mctourney.autoreferee.commands.LeaguePluginCommands;
 import org.mctourney.autoreferee.listeners.MatchListener;
 import org.mctourney.autoreferee.util.QueryServer;
 
@@ -33,7 +34,8 @@ public class AutoRefereeCML extends JavaPlugin
 		AutoReferee ar = AutoReferee.getInstance();
 
 		// register commands
-		ar.getCommandManager().registerCommands(new LeagueCommands(ar), ar);
+		ar.getCommandManager().registerCommands(new LeagueCoreCommands(ar), ar);
+		ar.getCommandManager().registerCommands(new LeaguePluginCommands(this), this);
 
 		// register events
 		Bukkit.getPluginManager().registerEvents(new MatchListener(ar), ar);
