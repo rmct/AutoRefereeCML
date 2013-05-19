@@ -18,7 +18,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <bukkit.version>1.4.7-R1.0</bukkit.version>
     <java.target.version>1.6</java.target.version>
-    <autoreferee.version>2.1</autoreferee.version>
+    <autoreferee.version>2.2</autoreferee.version>
   </properties>
 
   <scm>
