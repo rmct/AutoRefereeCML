@@ -1,5 +1,6 @@
 package org.mctourney.autoreferee.listeners;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
@@ -18,8 +19,7 @@ import org.mctourney.autoreferee.AutoRefereeCML;
 import org.mctourney.autoreferee.event.match.MatchCompleteEvent;
 import org.mctourney.autoreferee.event.match.MatchLoadEvent;
 import org.mctourney.autoreferee.event.match.MatchStartEvent;
-import org.mctourney.autoreferee.event.match.MatchUnloadEvent;
-import org.mctourney.autoreferee.util.QueryServer;
+import org.mctourney.autoreferee.util.QueryUtil;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -77,36 +77,40 @@ public class MatchListener implements Listener
 			Map<String, String> request = Maps.newHashMap();
 			request.put("teamdata", gson.toJson(teamdata));
 
-			String response = QueryServer.syncPostQuery(AutoRefereeCML.API_SERVER + "/get-teams.php",
-				QueryServer.prepareParams(request));
-
-			Type collectionType = new TypeToken<Map<String, TeamData>>(){}.getType();
-			Map<String, TeamData> teamresult = gson.fromJson(response, collectionType);
-
-			Set<Integer> matchteams = Sets.newHashSet();
-			for (Map.Entry<String, TeamData> entry : teamresult.entrySet())
+			try
 			{
-				AutoRefTeam team = match.getTeam(entry.getKey());
-				TeamData data = entry.getValue();
+				String response = QueryUtil.syncPostQuery(AutoRefereeCML.API_SERVER + "/get-teams.php",
+					QueryUtil.prepareParams(request));
 
-				if (team == null || data == null || matchteams.contains(data.id))
-				{ match.addMetadata("isranked", false); continue; }
+				Type collectionType = new TypeToken<Map<String, TeamData>>(){}.getType();
+				Map<String, TeamData> teamresult = gson.fromJson(response, collectionType);
 
-				team.setName(data.name);
-				team.addMetadata("leagueid", data.id);
-				matchteams.add(data.id);
+				Set<Integer> matchteams = Sets.newHashSet();
+				for (Map.Entry<String, TeamData> entry : teamresult.entrySet())
+				{
+					AutoRefTeam team = match.getTeam(entry.getKey());
+					TeamData data = entry.getValue();
+
+					if (team == null || data == null || matchteams.contains(data.id))
+					{ match.addMetadata("isranked", false); continue; }
+
+					team.setName(data.name);
+					team.addMetadata("leagueid", data.id);
+					matchteams.add(data.id);
+				}
+
+				if (matchteams.size() < 2)
+					match.addMetadata("isranked", false);
+
+				if (match.hasMetadata("isranked") && (Boolean) match.getMetadata("isranked"))
+				{
+					match.broadcastSync(ChatColor.DARK_RED + "[!!] This match will be ranked. Leaving this match",
+						ChatColor.DARK_RED + "[!!] without completion will be reflected in your rating.");
+					AutoRefereeCML.getInstance().getLogger().info(
+						String.format("-- Ranked match on '%s'", match.getMapName()));
+				}
 			}
-
-			if (matchteams.size() < 2)
-				match.addMetadata("isranked", false);
-
-			if (match.hasMetadata("isranked") && (Boolean) match.getMetadata("isranked"))
-			{
-				match.broadcastSync(ChatColor.DARK_RED + "[!!] This match will be ranked. Leaving this match",
-					ChatColor.DARK_RED + "[!!] without completion will be reflected in your rating.");
-				AutoRefereeCML.getInstance().getLogger().info(
-					String.format("-- Ranked match on '%s'", match.getMapName()));
-			}
+			catch (IOException e) { e.printStackTrace(); }
 		}
 	}
 
@@ -166,25 +170,29 @@ public class MatchListener implements Listener
 			request.put("serverkey", AutoRefereeCML.getInstance().serverkey);
 			request.put("mapname", match.getMapName());
 
-			String response = QueryServer.syncPostQuery(AutoRefereeCML.API_SERVER + "/ratings.php",
-				QueryServer.prepareParams(request));
-			AutoReferee.log(response);
-
-			RankingResponse ranking = gson.fromJson(response, RankingResponse.class);
-			if (ranking != null) for (Map.Entry<String, TeamData> entry : ranking.data.entrySet())
+			try
 			{
-				AutoRefTeam team = match.getTeam(entry.getKey());
-				TeamData data = entry.getValue();
+				String response = QueryUtil.syncPostQuery(AutoRefereeCML.API_SERVER + "/ratings.php",
+					QueryUtil.prepareParams(request));
+				AutoReferee.log(response);
 
-				if (team == null || data == null) continue;
+				RankingResponse ranking = gson.fromJson(response, RankingResponse.class);
+				if (ranking != null) for (Map.Entry<String, TeamData> entry : ranking.data.entrySet())
+				{
+					AutoRefTeam team = match.getTeam(entry.getKey());
+					TeamData data = entry.getValue();
 
-				String updateMessage = String.format("%s rating: %d -> %d",
-					team.getDisplayName(), (int) data.prevrating, (int) data.rating);
+					if (team == null || data == null) continue;
 
-				for (AutoRefPlayer apl : team.getPlayers())
-					AutoReferee.getInstance().sendMessageSync(apl.getPlayer(), updateMessage);
-				AutoReferee.log(updateMessage);
+					String updateMessage = String.format("%s rating: %d -> %d",
+						team.getDisplayName(), (int) data.prevrating, (int) data.rating);
+
+					for (AutoRefPlayer apl : team.getPlayers())
+						AutoReferee.getInstance().sendMessageSync(apl.getPlayer(), updateMessage);
+					AutoReferee.log(updateMessage);
+				}
 			}
+			catch (IOException e) { e.printStackTrace(); }
 		}
 	}
 

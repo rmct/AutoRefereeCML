@@ -7,8 +7,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mctourney.autoreferee.commands.LeagueCoreCommands;
 import org.mctourney.autoreferee.commands.LeaguePluginCommands;
 import org.mctourney.autoreferee.listeners.MatchListener;
-import org.mctourney.autoreferee.util.QueryServer;
+import org.mctourney.autoreferee.util.QueryUtil;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -47,12 +48,16 @@ public class AutoRefereeCML extends JavaPlugin
 		Map<String, String> ackParams = Maps.newHashMap();
 		ackParams.put("serverkey", this.getConfig().getString("server-key", ""));
 
-		String response = QueryServer.syncGetQuery(AutoRefereeCML.API_SERVER + "/ack.php",
-			QueryServer.prepareParams(ackParams));
+		try
+		{
+			String response = QueryUtil.syncGetQuery(AutoRefereeCML.API_SERVER + "/ack.php",
+				QueryUtil.prepareParams(ackParams));
 
-		if (response != null && !Boolean.parseBoolean(response))
-			AutoReferee.log(this.getName() + " could not connect to auth server.", Level.SEVERE);
-		else AutoReferee.log(this.getName() + " connected to auth server.");
+			if (response != null && !Boolean.parseBoolean(response))
+				AutoReferee.log(this.getName() + " could not connect to auth server.", Level.SEVERE);
+			else AutoReferee.log(this.getName() + " connected to auth server.");
+		}
+		catch (IOException e) { e.printStackTrace(); }
 	}
 
 	@Override
