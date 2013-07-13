@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL);
+
 // file not provided, must provide a method get_db_handle()
 // that returns a valid, connected DBO object
 require_once('database.php');
@@ -10,7 +12,7 @@ function get_team($players, $dbh)
 	$elements = array_fill(0, count($players), '?');
 
 	// query returns the name of the team, id, and count of players
-	$get_team_query = 'SELECT COUNT(*), teamid, teamname, rating '.
+	$get_team_query = 'SELECT COUNT(*), teamid, teamname, rating, sigma '.
 		'FROM TeamUser NATURAL JOIN User NATURAL JOIN Team WHERE timequit IS NULL '.
 		'AND ign IN (' . implode(',', $elements) . ') GROUP BY teamid';
 
@@ -26,18 +28,19 @@ function get_team($players, $dbh)
 	if ((int) $count < count($players)) return NULL;
 
 	// return team info object
-	return array('name' => $team, 'id' => (int) $teamid, 'rating' => (int) $rating);
+	return array('name' => $team, 'id' => (int) $teamid, 'rating' => (float) $rating, 'sigma' => (float) $sigma);
 }
 
 function get_team_rating($teamid, $dbh)
 {
 	// get rating from team table
-	$get_team_query = 'SELECT rating FROM Team WHERE teamid = ?';
+	$get_team_query = 'SELECT rating, sigma FROM Team WHERE teamid = ?';
 	$get_team = $dbh->prepare($get_team_query);
 
 	// return NULL if no match, otherwise convert the rating
 	$get_team->execute(array( $teamid ));
-	return (list($rating) = $get_team->fetch(PDO::FETCH_NUM)) ? (int) $rating : NULL;
+	if (!(list($rating, $sigma) = $get_team->fetch(PDO::FETCH_NUM))) return NULL;
+	return list((float) $rating, (float) $sigma);
 }
 
 function get_num_matches($teamid, $dbh)
@@ -51,14 +54,14 @@ function get_num_matches($teamid, $dbh)
 	return (list($c) = $get_match_count->fetch(PDO::FETCH_NUM)) ? (int) $c : 0;
 }
 
-function set_team_rating($teamid, $rating, $dbh)
+function set_team_rating($teamid, $rating, $sigma, $dbh)
 {
 	// get rating from team table
-	$set_team_query = 'UPDATE Team SET rating = ? WHERE teamid = ?';
+	$set_team_query = 'UPDATE Team SET rating = ?, sigma = ? WHERE teamid = ?';
 	$set_team = $dbh->prepare($set_team_query);
 
 	// set the rating and return the success
-	return $set_team->execute(array( $rating, $teamid ));
+	return $set_team->execute(array( $rating, $sigma, $teamid ));
 }
 
 function get_server_id($serverkey, $dbh)
