@@ -131,8 +131,9 @@ public class MatchListener implements Listener
 
 		class TeamData
 		{
+			public double score;
 			public double rating, prevrating;
-			public double k, e, score, q;
+			public double sigma, prevsigma;
 
 			public int id;
 			TeamData() {  }
