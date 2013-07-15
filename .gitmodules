@@ -1,3 +1,3 @@
 [submodule "src/main/php/skills"]
 	path = src/main/php/skills
-	url = https://github.com/moserware/PHPSkills.git
+	url = https://github.com/bartrail/PHPSkills.git
