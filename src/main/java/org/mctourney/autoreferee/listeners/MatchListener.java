@@ -50,7 +50,8 @@ public class MatchListener implements Listener
 
 		class TeamData
 		{
-			public int id, score;
+			public int id;
+			public float rating, sigma;
 			public String name;
 
 			TeamData() {  }
@@ -63,7 +64,7 @@ public class MatchListener implements Listener
 			for (AutoRefTeam team : this.match.getTeams())
 			{
 				Set<AutoRefPlayer> apls = team.getPlayers();
-			//	if (apls.size() < team.getMinSize()) continue;
+				if (apls.size() < team.getMinSize()) continue;
 
 				Set<String> players = Sets.newHashSet();
 				for (AutoRefPlayer apl : apls)
@@ -175,7 +176,6 @@ public class MatchListener implements Listener
 			{
 				String response = QueryUtil.syncPostQuery(AutoRefereeCML.API_SERVER + "/ratings.php",
 					QueryUtil.prepareParams(request));
-				AutoReferee.log(response);
 
 				RankingResponse ranking = gson.fromJson(response, RankingResponse.class);
 				if (ranking != null) for (Map.Entry<String, TeamData> entry : ranking.data.entrySet())
@@ -185,8 +185,8 @@ public class MatchListener implements Listener
 
 					if (team == null || data == null) continue;
 
-					String updateMessage = String.format("%s rating: %d -> %d",
-						team.getDisplayName(), (int) data.prevrating, (int) data.rating);
+					String updateMessage = String.format("%s rating: %.2f -> %.2f",
+						team.getDisplayName(), data.prevrating, data.rating);
 
 					for (AutoRefPlayer apl : team.getPlayers())
 						AutoReferee.getInstance().sendMessageSync(apl.getPlayer(), updateMessage);

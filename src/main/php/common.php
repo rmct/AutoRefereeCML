@@ -24,7 +24,7 @@ function get_team($players, $dbh)
 	$get_team->execute($lower_igns);
 
 	// if nothing is returned, or all players are not from same team, no team
-	if (!(list($count, $teamid, $team, $rating) = $get_team->fetch(PDO::FETCH_NUM))) return NULL;
+	if (!(list($count, $teamid, $team, $rating, $sigma) = $get_team->fetch(PDO::FETCH_NUM))) return NULL;
 	if ((int) $count < count($players)) return NULL;
 
 	// return team info object
